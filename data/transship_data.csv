@@ -1,0 +1,59 @@
+location_id,location_description,location_type,is_internal,capacity_constraint,latitude,longitude,city,country,country_iso,size
+distribution_center_1,Description distribution_center_1,distribution_center,FALSE,1,44.983333,-93.266667,Minneapolis,US,US,NA
+distribution_center_2,Description distribution_center_2,distribution_center,FALSE,1,39.7392364,-104.9848623,Denver,US,US,NA
+distribution_center_3,Description distribution_center_3,distribution_center,FALSE,1,39.099722,-94.578333,Kansas City,US,US,NA
+distribution_center_4,Description distribution_center_4,distribution_center,FALSE,1,45.52,-122.681944,Portland,US,US,NA
+distribution_center_5,Description distribution_center_5,distribution_center,FALSE,1,36.1690921,-115.1405767,Las Vegas,US,US,NA
+warehouse_1,Warehouse_1,warehouse,FALSE,1,33.748547,-84.391502,Atlanta,US,US,NA
+warehouse_2,Warehouse_2,warehouse,FALSE,1,41.31,-72.923611,New Haven,US,US,NA
+warehouse_3,Warehouse_3,warehouse,TRUE,1,43.046944,-76.144444,Siracusa,US,US,NA
+warehouse_4,Warehouse_4,warehouse,FALSE,1,38.555556,-121.468889,Sacramento,US,US,NA
+manufacturing_plant_2,Description manufacturing_plant_2,manufacturing_plant,TRUE,1,25.6828,-100.311638,Monterrey,Mexico,MX,NA
+manufacturing_plant_3,Description manufacturing_plant_3,manufacturing_plant,TRUE,1,21.0294498,105.8544441,Hanoi,Vietnam,VN,NA
+raw_materials_warehouse_1,Description raw_materials_warehouse_1,raw_materials_warehouse,FALSE,1,23.7,90.375,Daca,Bangladesh,BD,NA
+raw_materials_warehouse_2,Description raw_materials_warehouse_2,raw_materials_warehouse,FALSE,1,4.6533326,-74.083652,Bogota,Colombia,CO,NA
+raw_materials_warehouse_3,Description raw_materials_warehouse_3,raw_materials_warehouse,FALSE,1,51.224956,6.7756691,Dusseldorf,Germany,DE,NA
+retailer_1,Description retailer_1,retailer,NA,NA,40.7130466,-74.0072301,New York,US,US,NA
+retailer_2,Description retailer_2,retailer,NA,NA,38.8949924,-77.0365581,Washington DC,US,US,NA
+retailer_3,Description retailer_3,retailer,NA,NA,41.883229,-87.632398,Chicago,US,US,NA
+retailer_4,Description retailer_4,retailer,NA,NA,42.358056,-71.063611,Boston,US,US,NA
+retailer_5,Description retailer_5,retailer,NA,NA,37.7790262,-122.4199061,San Francisco,US,US,NA
+retailer_6,Description retailer_6,retailer,NA,NA,47.603229,-122.33028,Seattle,US,US,NA
+supplier_1,Description supplier_1,supplier,FALSE,1,48.1391264,11.5802189,Munich,Germany,DE,NA
+supplier_100,Description supplier_100,supplier,FALSE,1,48.856895,2.3508487,Paris,France,FR,NA
+supplier_101,Description supplier_101,supplier,FALSE,1,40.4166909,-3.7003454,Madrid,Spain,ES,NA
+supplier_102,Description supplier_102,supplier,FALSE,1,45.4636183,9.1881156,Milan,Italy,IT,NA
+supplier_104,Description supplier_104,supplier,FALSE,1,38.7077507,-9.1365919,Lisboa,Portugal,PT,NA
+supplier_105,Description supplier_105,supplier,FALSE,1,53.3440956,-6.2674862,Dublin,Ireland,IE,NA
+supplier_106,Description supplier_106,supplier,FALSE,1,59.329444,18.068611,Stockholm,Sweden,SE,NA
+supplier_109,Description supplier_109,supplier,FALSE,1,59.9133301,10.7389701,Oslo,Norway,NO,NA
+supplier_17,Description supplier_17,supplier,FALSE,1,60.1698081,24.9381283,Helsinki,Finland,FI,NA
+supplier_18,Description supplier_18,supplier,FALSE,1,37.9753357,23.7361497,Atenas,Greece,GR,NA
+supplier_2,Description supplier_2,supplier,FALSE,1,52.233333,21.016667,Varsovia,Poland,PL,NA
+supplier_20,Description supplier_20,supplier,FALSE,1,48.1464009,17.1068781,Bratislava,Slovakia,SK,NA
+supplier_21,Description supplier_21,supplier,FALSE,1,50.110884,8.6794922,Frankfurt,Germany,DE,NA
+supplier_22,Description supplier_22,supplier,FALSE,1,41.387917,2.1699187,Barcelona,Spain,ES,NA
+supplier_23,Description supplier_23,supplier,FALSE,1,52.3731663,4.8906596,Amsterdam,Netherlands,NL,NA
+supplier_25,Description supplier_25,supplier,FALSE,1,50.836025,4.370705,Bruselas,Belgium,BE,NA
+supplier_26,Description supplier_26,supplier,FALSE,1,41.8905568,12.4942679,Roma,Italy,IT,NA
+supplier_28,Description supplier_28,supplier,FALSE,1,39.9020803,116.7185213,Pekin,China,CN,NA
+supplier_29,Description supplier_29,supplier,FALSE,1,22.2793278,114.1628131,Hong Kong,China,CN,NA
+supplier_3,Description supplier_3,supplier,FALSE,1,31.2322758,121.4692071,Shanghai,China,CN,NA
+supplier_37,Description supplier_37,supplier,FALSE,1,25.0375198,121.5636796,Taipei,Taiwan,TW,NA
+supplier_38,Description supplier_38,supplier,FALSE,1,34.693889,135.502222,Osaka,Japan,JP,NA
+supplier_39,Description supplier_39,supplier,FALSE,1,3.1516964,101.6942371,Kuala Lumpur,Malaysia,MY,NA
+supplier_4,Description supplier_4,supplier,FALSE,1,-6.1753942,106.827183,Yakarta,Indonesia,ID,NA
+supplier_5,Description supplier_5,supplier,FALSE,1,-27.4689682,153.0234991,Brisbane,Australia,AU,NA
+supplier_57,Description supplier_57,supplier,FALSE,1,-36.847317,174.762782,Auckland,Australia,AU,NA
+supplier_59,Description supplier_59,supplier,FALSE,1,14.5822592,120.9748038,Manila,Philippines,PH,NA
+supplier_6,Description supplier_6,supplier,FALSE,1,10.5027833,-66.9190455,Caracas,Venezuela,VE,NA
+supplier_60,Description supplier_60,supplier,FALSE,1,-0.214945,-78.5132,Quito,Ecuador,EC,NA
+supplier_61,Description supplier_61,supplier,FALSE,1,-8.0551894,-34.871176,Recife,Brazil,BR,NA
+supplier_7,Description supplier_7,supplier,FALSE,1,-12.043333,-77.028333,Lima,Peru,PE,NA
+supplier_79,Description supplier_79,supplier,FALSE,1,-34.6075682,-58.4370894,Buenos Aires,Argentina,AR,NA
+supplier_80,Description supplier_80,supplier,FALSE,1,19.333333,-96.666667,Veracruz,Mexico,MX,NA
+supplier_81,Description supplier_81,supplier,FALSE,1,14.613333,-90.535278,Ciudad de Guatemala,Guatemala,GT,NA
+supplier_82,Description supplier_82,supplier,FALSE,1,14.10576,-87.2042,Tegucigalpa,Honduras,HN,NA
+supplier_89,Description supplier_89,supplier,FALSE,1,12.13932,-86.26096,Managua,Nicaragua,NI,NA
+supplier_94,Description supplier_94,supplier,FALSE,1,52.4760892,-71.8258668,Quebec,Canada,CA,NA
+supplier_95,Description supplier_95,supplier,FALSE,1,49.2608724,-123.1139529,Vancouver,Canada,CA,NA
