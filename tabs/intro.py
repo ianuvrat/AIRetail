@@ -64,9 +64,9 @@ layout = [
               [Input('interval', 'n_intervals')])
 def display_image(n):
     if n == None or n % 2 == 0:
-        img = html.Img(src=app.get_asset_url('a.JPG'),style=center)
+        img = html.Img(src=app.get_asset_url('a.jPG'),style=center)
     else:
-        img = html.Img(src=app.get_asset_url('b.JPG'),style=center)
+        img = html.Img(src=app.get_asset_url('b.jPG'),style=center)
 #        img = "None"
     return img
 
