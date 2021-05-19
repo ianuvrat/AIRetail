@@ -633,13 +633,17 @@ layout = dbc.Container([
                     # Dash datatable (sensitivity Analysis)
                     dbc.Col([
                         html.Label("Sensitivity Analysis", className="font-weight-bold text-primary"),
-                        html.Div(id="output-datatable2", style={'width': '80vh', 'height': '50vh'}),
+                        dcc.Loading(children=[html.Div(id="output-datatable2", style={'width': '80vh', 'height': '50vh'})],color="#119DFF", type="cube",
+                                    fullscreen=False),
+#                        html.Div(id="output-datatable2", style={'width': '80vh', 'height': '50vh'}),
                             ],className="text-left", width={'size': 0, 'offset': 0, 'order': 0}),
 
                     # Dash datatable (Routes)
                     dbc.Col([
                         html.Label("Desired Routes and Units to transfer",className="font-weight-bold text-primary"),
-                        html.Div(id="output-datatable", style={'width': '100vh', 'height': '50vh'}),
+                        dcc.Loading(children=[html.Div(id="output-datatable", style={'width': '100vh', 'height': '50vh'})], color="#119DFF", type="cube",
+                                    fullscreen=False),
+#                        html.Div(id="output-datatable", style={'width': '100vh', 'height': '50vh'}),
                             ],className="text-left", width={'size': 0, 'offset': 1, 'order': 0}),
                 ]),
 
@@ -651,23 +655,15 @@ html.Br(),
 html.Br(),
 html.Br(),
 
-
-
-
                 dbc.Row([
                     # Bar Graph
                     dbc.Col([
                         html.Label("Change in Cost", className="font-weight-bold text-primary"),
-                        html.Div(id='sensitivity_bar', style={'width': '200vh', 'height': '100vh'}),
-                    ], className="text-left", width={'size': 12, 'offset': 0, 'order': 1})
-
+                        dcc.Loading(children=[html.Div(id='sensitivity_bar', style={'width': '200vh', 'height': '100vh'})], color="#119DFF", type="cube",
+                                    fullscreen=False),
+#                        html.Div(id='sensitivity_bar', style={'width': '200vh', 'height': '100vh'}),
+                            ], className="text-left", width={'size': 12, 'offset': 0, 'order': 1})
                 ])
-
-
-
-
-
-
 
 
 ],fluid=True),
