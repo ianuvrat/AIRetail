@@ -3,7 +3,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 
 from app import app, server, dbc
-from tabs import intro, transport, transship
+from tabs import intro, transport, transship, upload_csv
 
 
 style = {'maxWidth': '960px', 'margin': 'auto'}
@@ -16,7 +16,7 @@ app.layout = dbc.Container([
     dcc.Tabs(id='tabs', value='tab-intro', children=[
         dcc.Tab(label='Unconstrained Network', value='tab-transport'),
         dcc.Tab(label='Capacity Constrained Network', value='tab-transship'),
-        # dcc.Tab(label='Inventory Projection', value='tab-projection'),
+        dcc.Tab(label='Purchase Order Optimization', value='tab-upload_csv'),
 
     ]),
     html.Div(id='tabs-content')
@@ -29,6 +29,7 @@ def render_content(tab):
     if tab == 'tab-intro': return intro.layout
     elif tab == 'tab-transport': return transport.layout
     elif tab == 'tab-transship':return transship.layout
+    elif tab == 'tab-upload_csv':return upload_csv.layout
     # elif tab == 'tab-projection': return projection.layout
 
 #--------------------------------------------------------------
