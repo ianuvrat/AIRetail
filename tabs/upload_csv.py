@@ -147,7 +147,10 @@ html.Br(),
             ]),
 
     # 5  Uploaded Dash datatable
-    html.Div(id='output-data-upload', style={'width': '190vh', 'height': '100vh'}),
+   dcc.Loading(children=[html.Div(id="output-data-upload", style={'width': '190vh', 'height': '100vh'})], color="#119DFF",
+                    type="default", fullscreen=False),
+
+    #html.Div(id='output-data-upload', style={'width': '190vh', 'height': '100vh'}),
 
 html.Br(),
 html.Br(),
