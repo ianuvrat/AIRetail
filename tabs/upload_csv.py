@@ -144,17 +144,17 @@ html.Br(),
         dbc.Col([
             dcc.Loading(children=[html.Div(id="output-container-date-picker-single", className="text-danger font-weight-bold text-left border-primary")],color="#119DFF",
                         type="circle", fullscreen=False),
+
 #            html.Div(id='output-container-date-picker-single', className="text-danger font-weight-bold text-left border-primary")
                 ] , className="text-left", width={'size': 3, 'offset': 9, 'order': 1}),
             ]),
 
+
     # 5  Uploaded Dash datatable
-   dcc.Loading(children=[html.Div(id="output-data-upload", style={'width': '190vh', 'height': '100vh'})], color="#119DFF",
+        dcc.Loading(children=[html.Div(id="output-data-upload", style={'width': '190vh', 'height': '100vh'})], color="#119DFF",
                     type="default", fullscreen=False),
 
-    #html.Div(id='output-data-upload', style={'width': '190vh', 'height': '100vh'}),
-
-html.Br(),
+    html.Br(),
 html.Br(),
 html.Br(),
 html.Br(),
@@ -202,10 +202,10 @@ html.Br(),
 
     ]),
 
-
+html.Br(),
     html.H5("Summay for selected day"),
 html.Br(),
-html.Br(),
+
 
     dbc.Row([
 
@@ -228,9 +228,12 @@ html.Br(),
                 html.Tr([html.Td(['Tot. POs'], className="p-1 border border-primary border-right-0 bg-warning font-weight-bold text-left border-primary"),
                          html.Td(id='tot_po', className=" text-dark font-weight-bold text-left")]),
 html.Br(),
+html.Br(),
 html.H5('Google OR tools results'),
+html.Br(),
                 html.Tr([html.Td(['Max. PO flow'], className="p-1 border border-primary border-right-0 bg-success font-weight-bold text-left border-primary"),
                          html.Td(id='max_flow', className=" text-dark font-weight-bold text-left")]),
+html.Br(),
                 html.Tr([html.Td(['Min. Cost: $'], className="p-1 border border-primary border-right-0 bg-success font-weight-bold text-left border-primary"),
                          html.Td(id='min_cost', className=" text-dark font-weight-bold text-left")]),
                     ]),
