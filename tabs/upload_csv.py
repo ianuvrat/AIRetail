@@ -142,7 +142,9 @@ html.Br(),
 
         # 2 Selected Date Display
         dbc.Col([
-            html.Div(id='output-container-date-picker-single', className="text-danger font-weight-bold text-left border-primary")
+            dcc.Loading(children=[html.Div(id="output-container-date-picker-single", className="text-danger font-weight-bold text-left border-primary")],color="#119DFF",
+                        type="circle", fullscreen=False),
+#            html.Div(id='output-container-date-picker-single', className="text-danger font-weight-bold text-left border-primary")
                 ] , className="text-left", width={'size': 3, 'offset': 9, 'order': 1}),
             ]),
 
