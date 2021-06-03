@@ -25,6 +25,7 @@ from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
+import plotly.figure_factory as ff
 
 import pandas as pd
 import numpy as np
@@ -36,23 +37,72 @@ options = dict(loop=True, autoplay=True, rendererSettings=dict(preserveAspectRat
 # Mapbox token
 token = 'pk.eyJ1IjoiaWFudXZyYXQiLCJhIjoiY2tvNWQ1a2FkMHB6MTJ2cXdmeGt3MTdldyJ9.5vxPVvQdr6NL8hxVCZ1ecg'
 
+alert99 = dbc.Alert("Data uploaded! Select a date and submit ", color="info",  dismissable=True),
+alert98 = dbc.Alert("Upload Purchase Orders data!", color="warning",  dismissable=True),
+
 
 #---------------------------------------------------------------
 # get relative locations from data folder
 PATH = pathlib.Path(__file__).parent
 DATA_PATH = PATH.joinpath("../data").resolve()
 dff = pd.read_csv(DATA_PATH.joinpath("sc_location_md.csv"))
+dfff =pd.read_csv(DATA_PATH.joinpath("sc_transportation_lanes.csv"))
 #_--------------------------------------------------------------
 # Cleaning
 df_loc = dff.drop(['location_description','is_internal', 'size'],axis=1)
-
-
+#dropping unwanted columns
+df_lane = dfff.drop(['priority','ordering_calendar_id','missing_supplier','missing_transportation'],axis=1)
+#creating id col.
+df_lane['id'] = df_lane['material_id'] + '_' + df_lane['location_from_id'] +'_' + df_lane['location_to_id']
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 layout = dbc.Container([
 
-
+html.Br(),
 
     dbc.Row([
+
+        # Alert,
+        dbc.Col([
+            html.Div(id="alert_id2", children=[]),
+        ], className="text-left", width={'size': 3, 'offset': 0, 'order': 0}),
+
+
+        dbc.Col([
+            dcc.Dropdown(
+                id='report-dpdn',
+                multi=False,
+                searchable=False,
+                clearable=False,
+                disabled=False,
+                options=[
+                    {'label': 'CSV', 'value': 'csv'},
+                    {'label': 'Excel', 'value': 'excel'},
+                    {'label': 'Text', 'value': 'txt'}
+                ],
+                value='csv'),
+        ], className="text-left", width={'size': 1, 'offset': 1, 'order': 1}),
+
+        # upload button
+        dbc.Col([
+            html.H5("Upload file"),
+            dcc.Upload(
+                id="upload-data",
+                children=html.Div(["Drag/Drop or ", html.A("Select File")]),
+                style={
+                    "width": "100%",
+                    "height": "45px",
+                    "lineHeight": "40px",
+                    "borderWidth": "1px",
+                    "borderStyle": "dashed",
+                    "borderRadius": "5px",
+                    "textAlign": "center",
+                    "margin": "10px",
+                },
+                # Allow multiple files to be uploaded
+                multiple=False,
+            )
+        ], className="text-left", width={'size': 2, 'offset': 0, 'order': 2}),
 
         # 1 Datepicker
         dbc.Col([
@@ -67,30 +117,24 @@ layout = dbc.Container([
                 display_format='D-MM-YYYY',
                 with_portal=True,
             ),
-                ],className="text-left", width={'size': 1.5, 'offset': 0, 'order': 0}),
+        ], className="text-left", width={'size': 1.5, 'offset': 0, 'order': 3}),
 
-        # upload button
+
+    ]),
+
+
+
+    dbc.Row([
+
+        # Submit Button
         dbc.Col([
-            html.H5("Upload file"),
-            dcc.Upload(
-                id="upload-data",
-                children=html.Div(["Drag/Drop or ", html.A("Select File")]),
-                style={
-                    "width": "100%",
-                    "height": "60px",
-                    "lineHeight": "60px",
-                    "borderWidth": "1px",
-                    "borderStyle": "dashed",
-                    "borderRadius": "5px",
-                    "textAlign": "center",
-                    "margin": "10px",
-                },
-                # Allow multiple files to be uploaded
-                multiple=False,
-            )
-        ], className="text-left", width={'size': 2, 'offset': 8, 'order': 2}),
+            html.Button(id='submit_id', n_clicks=0, children='Submit'),
+        ], className="text-left", width={'size': 1, 'offset': 3, 'order': 1}),
 
-
+        # Alert,
+        dbc.Col([
+            html.Div(id="alert_id", children=[]),
+        ], className="text-left", width={'size': 3, 'offset': 0, 'order': 0}),
     ]),
 
 
@@ -99,74 +143,153 @@ layout = dbc.Container([
         # 2 Selected Date Display
         dbc.Col([
             html.Div(id='output-container-date-picker-single', className="text-danger font-weight-bold text-left border-primary")
-                ]),
+                ] , className="text-left", width={'size': 3, 'offset': 9, 'order': 1}),
             ]),
+
+    # 5  Uploaded Dash datatable
+    html.Div(id='output-data-upload', style={'width': '190vh', 'height': '100vh'}),
+
+html.Br(),
+html.Br(),
+html.Br(),
+html.Br(),
 html.Br(),
 
-html.Label("Summay for selected day"),
 
     dbc.Row([
 
-        # 3 Outputs
+        dbc.Col([
+            # Map Mode radio items
+            html.Div([
+                html.Label(['Map View:'], style={'font-weight': 'bold'}, className="font-weight-bold text-primary"),
+                dcc.RadioItems(
+                    id='map_mode',
+                    options=[
+
+                        {'label': 'Toner', 'value': 'toner'},
+                        {'label': 'OpenStreet ', 'value': 'ostreet'},
+                        {'label': 'Satellite ', 'value': 'sat'},
+                        {'label': 'Region ', 'value': 'region'},
+                        {'label': 'Dark ', 'value': 'dak'},
+                        {'label': 'States ', 'value': 'street'},
+                    ],
+                    value='toner',
+                    style={"width": "50%"},
+                ),
+            ]),
+
+        ] , className="text-left", width={'size': 7, 'offset': 0, 'order': 1}),
+
+        # i button
+        dbc.Col([
+            dbc.Button("i", id="popover-bottom-target0", color="warning", outline=True),
+                ], className="text-left", width={'size': 1, 'offset': 4, 'order': 0}),
+        dbc.Popover([
+            dbc.PopoverBody(
+                "Select a map layout preview "),
+                    ],
+            id="popover0",
+            target="popover-bottom-target0",  # needs to be the same as dbc.Button id
+            trigger="hover",
+            placement="bottom",
+            is_open=False,
+                ),
+
+    ]),
+
+
+    html.H5("Summay for selected day"),
+html.Br(),
+html.Br(),
+
+    dbc.Row([
+
+        # 3 Summary Outputs
         dbc.Col([
             html.Table([
-                html.Tr([html.Td(['Supply Nodes'], className="p-1 border border-primary border-right-0 bg-primary font-weight-bold text-left border-primary"),
+                html.Tr([html.Td(['Supply Nodes'], className="p-1 border border-primary border-right-0 bg-warning font-weight-bold text-left border-primary"),
                          html.Td(id='s_node', className=" text-dark font-weight-bold text-left" )]),
-                html.Tr([html.Td(['Demand Nodes'], className="p-1 border border-primary border-right-0 bg-danger font-weight-bold text-left border-primary"),
+html.Br(),
+                html.Tr([html.Td(['Demand Nodes'], className="p-1 border border-primary border-right-0 bg-warning font-weight-bold text-left border-primary"),
                          html.Td(id='d_node', className=" text-dark font-weight-bold text-left")]),
+html.Br(),
                 html.Tr([html.Td(['Unique PO_items'], className="p-1 border border-primary border-right-0 bg-warning font-weight-bold text-left border-primary"),
                          html.Td(id='po_item_cat', className=" text-dark font-weight-bold text-left")]),
+html.Br(),
                 html.Tr([html.Td(['Material Flow'], className="p-1 border border-primary border-right-0 bg-warning font-weight-bold text-left border-primary"),
                          html.Td(id='mat_flow', className=" text-dark font-weight-bold text-left")]),
-                html.Tr([html.Td(['Tot. POs'], className="p-1 border border-primary border-right-0 bg-secondary font-weight-bold text-left border-primary"),
+html.Br(),
+
+                html.Tr([html.Td(['Tot. POs'], className="p-1 border border-primary border-right-0 bg-warning font-weight-bold text-left border-primary"),
                          html.Td(id='tot_po', className=" text-dark font-weight-bold text-left")]),
-                html.Tr([html.Td(['Max. PO flow'], className="p-1 border border-primary border-right-0 bg-secondary font-weight-bold text-left border-primary"),
+html.Br(),
+html.H5('Google OR tools results'),
+                html.Tr([html.Td(['Max. PO flow'], className="p-1 border border-primary border-right-0 bg-success font-weight-bold text-left border-primary"),
                          html.Td(id='max_flow', className=" text-dark font-weight-bold text-left")]),
                 html.Tr([html.Td(['Min. Cost: $'], className="p-1 border border-primary border-right-0 bg-success font-weight-bold text-left border-primary"),
                          html.Td(id='min_cost', className=" text-dark font-weight-bold text-left")]),
-            ]),
-
+                    ]),
         ], className="text-left", width={'size': 0, 'offset': 0, 'order': 0}),
 
-    ]),
-
-    dbc.Row([
         # Map Scatter Box
         dbc.Col([
-            html.Label("Geographic Locations", className="font-weight-bold text-danger"),
             dcc.Loading(children=[dcc.Graph(id="mymap3", config={'displayModeBar': True})], color="#119DFF",
                         type="cube", fullscreen=False),
-        ], className="text-left", width={'size': 6, 'offset': 0, 'order': 0}),
-
-        # Sankey
-        dbc.Col([
-#            html.Label("Flow", className="font-weight-bold text-primary"),
-            dcc.Graph(id='sanky-fig'),
-        ], className="text-left", width={'size': 6, 'offset': 0, 'order': 1})
+        ], className="text-left", width={'size': 8, 'offset': 1, 'order': 1}),
 
     ]),
+
 
     dbc.Row([
 
         # 6  Final Dash datatable
         dbc.Col([
+            html.H5("Optimized PO flow", className="font-weight-bold text-danger"),
             html.Div(id='output-data-upload2'),
         ], className="text-left", width={'size': 12, 'offset': 0, 'order': 0}),
+
+    ]),
+
+
+
+    dbc.Row([
+
+        # Sankey
+        dbc.Col([
+            dcc.Loading(children=[dcc.Graph(id="sanky-fig", config={'displayModeBar': True})], color="#119DFF",
+                        type="default", fullscreen=False),
+                ], className="text-left", width={'size': 6, 'offset': 0, 'order': 0}),
+
+        # Bar-Container-2 (Cost vs Demand Fulfilment)
+        dbc.Col([
+                html.Div(id='bar-container2'),
+                ], className="text-left", width={'size': 6, 'offset': 0, 'order': 1}),
+            ]),
+
+
+    dbc.Row([
+
+        # Shipment Summary
+        dbc.Col([
+            html.Div(id='bar_fig'),
+        ], className="text-left", width={'size': 12, 'offset': 0, 'order': 0})
     ]),
 
 
     dbc.Row([
-        # Bar-Container-2
+
+        # 6  Comparision table (Cost vs Lead time)
         dbc.Col([
-            html.Label("Cost vs Demand Fulfilment", className="font-weight-bold text-primary"),
-            html.Div(id='bar-container2'),
-                ],className="text-left", width={'size': 12, 'offset': 0, 'order': 0})
-            ]),
+            html.H5("Cost vs Lead time vs PO Flows vs Carriers", className="font-weight-bold text-danger"),
+            html.Div(id='table_fig'),
+                ], className="text-left", width={'size': 6, 'offset': 0, 'order': 0}),
+
+    ]),
 
     html.Br(),
 
-    # 5  Uploaded Dash datatable
-    html.Div(id='output-data-upload', style={'width': '190vh', 'height': '100vh'}),
+    # # 5  Uploaded Dash datatable
+    # html.Div(id='output-data-upload', style={'width': '190vh', 'height': '100vh'}),
 
 ], fluid=True)
 #____________________________________________________________________________________________________________________________________________________________________________________________________________________
@@ -190,13 +313,20 @@ def parse_data(contents, filename):
             df_po['date_delivery_requested'] = pd.to_datetime(df_po['date_delivery_requested'])
             df_po['date_delivery_requested'] = pd.to_datetime(df_po['date_delivery_requested']).dt.date
 
-            # Random Cost for each PO
-            data = np.random.randint(50, 1000, size=len(df_po['po_number']))
-            df_po["po_cost"] = data
-
         elif 'xls' in filename:
             # Assume that the user uploaded an excel file
             df = pd.read_excel(io.BytesIO(decoded))
+
+            df_po = df
+
+            # dropping unwanted columns
+            df_po = df_po.drop(['pr_item', 'po_type', 'po_category', 'po_line', 'po_del_flag', 'po_item_del_flag', 'po_type'], axis=1)
+
+            # Formaating Date Columns
+            df_po['date_delivery_requested'] = pd.to_datetime(df_po['date_delivery_requested'])
+            df_po['date_delivery_requested'] = pd.to_datetime(df_po['date_delivery_requested']).dt.date
+
+
     except Exception as e:
         print(e)
         return html.Div([
@@ -207,12 +337,21 @@ def parse_data(contents, filename):
 
 #-----------------------Uploaded Datatable callback------------------------------------
 @app.callback(
-              Output('output-data-upload', 'children'),
+              [Output('output-data-upload', 'children'),
+               Output("alert_id", "children"),
+               Output("alert_id2", "children")],
+
 
               Input('upload-data', 'contents'),
-              State('upload-data', 'filename'))
-def update_output(contents, filename):
-    if contents is not None and filename is not None:
+              State('upload-data', 'filename')
+            )
+def parse_output(contents, filename):
+    if contents is None and filename is None:
+        return "", "", alert98
+#        raise PreventUpdate
+
+
+    elif contents is not None and filename is not None:
         df_po = parse_data(contents, filename)  # calling fn.
 
         table = html.Div(
@@ -264,7 +403,7 @@ def update_output(contents, filename):
             ]
         )
 
-        return table
+        return table, alert99, ""
 #---------------------------------------------------------------
 #---------------------Datepicker callback------------------------
 @app.callback(
@@ -280,23 +419,32 @@ def update_output(contents, filename):
     Output('mymap3', 'figure'),
     Output('sanky-fig', 'figure'),
 
+    [Input('map_mode', 'value'),
+    Input('submit_id', 'n_clicks'),
     Input('my-date-picker-single', 'date'),
     Input('upload-data', 'contents'),
-    State('upload-data', 'filename')
+    # State('cap_id', 'value'),
+    State('upload-data', 'filename')]
 )
-def update_output(date_value, contents, filename):
+
+
+def process_update(view, num_clicks, date_value, contents,filename):
     string_prefix = 'You have selected: '
-    if contents is None or filename is None or date_value is None:
+
+    # if contents is None or filename is None or date_value is None:
+    #     raise PreventUpdate
+
+    if num_clicks == 0:
         raise PreventUpdate
 
-#    if date_value is not None:
+    #    if date_value is not None:
     else:
         date_object = date.fromisoformat(date_value)
         date_string = date_object.strftime('%B %d, %Y')
         selected_day = date_object
 
-        # Function call for uploaded data
-        df_po = parse_data(contents, filename)
+
+        df_po = parse_data(contents, filename)  # Function call for uploaded data
         print("Total Records in uploaded csv")
         print("Total unique PO numbers", df_po['po_number'].nunique())
         print("Total unique PO items", df_po['po_item'].nunique())
@@ -308,10 +456,10 @@ def update_output(date_value, contents, filename):
         # Filtering df for a selected date
         df_selected_day = df_po[df_po["date_delivery_requested"] == selected_day]
 
-        res1 = df_selected_day["location_from_id"].nunique(),
-        res2 = df_selected_day["location_to_id"].nunique(),
-        res3 = df_selected_day["po_item"].nunique(),
-        res4 = df_selected_day["material_id"].nunique(),
+        res1 = df_selected_day["location_from_id"].nunique(),  # supply nodes count
+        res2 = df_selected_day["location_to_id"].nunique(),    # demand nodes count
+        res3 = df_selected_day["po_item"].nunique(),           # unique PO Item count
+        res4 = df_selected_day["material_id"].nunique(),       # unique materials count
 
         print("Selected Day:", selected_day)
         print("total supply nodes", df_selected_day["location_from_id"].nunique())
@@ -319,7 +467,7 @@ def update_output(date_value, contents, filename):
         print("total unique PO category", df_selected_day["po_item"].nunique())
         print("total material Flow", df_selected_day["material_id"].nunique())
 
-        print(df_selected_day.head())
+        # print(df_selected_day.head())
 
 
         # Facilities involved in the selected day
@@ -342,25 +490,45 @@ def update_output(date_value, contents, filename):
         print("\nEnd Facilities\n", e_nodes)
 
         # Main df
-        main = pd.DataFrame(df_selected_day.groupby(['material_id', 'location_from_id', 'location_to_id']).agg({'po_number': 'count',
-                                                                                                                'po_cost': 'sum'}).reset_index())
-        print("main_df\n", main.head(100))
+        main = pd.DataFrame(df_selected_day.groupby(['material_id', 'location_from_id', 'location_to_id']).agg({'po_number': 'count'}).reset_index())
 
-        # Transport Lanes (PO Flows, unit cost)
-        df_lanes = pd.DataFrame(main.groupby(['location_from_id', 'location_to_id']).agg({'po_number': 'sum',
-                                                                                          'po_cost': 'sum'}).reset_index())
         # rename cols.
-        df_lanes.rename(columns={'po_number': '#POs', 'po_cost': 'unit_costs'}, inplace=True)
-        print("df_lanes\n", df_lanes.head(100))
+        main.rename(columns={'po_number': '#POs'}, inplace=True)
+
+        main['id'] = main['material_id'] + '_' + main['location_from_id'] + '_' + main['location_to_id']
+
+        # Adding lead time and cost (according to transport lanes)
+        capacity_lst = []
+        lead_time_lst = []
+        unit_cost_lst = []
+
+        for id1 in main['id']:
+            for id2 in df_lane['id']:
+                if id1 == id2:
+                    w = df_lane.loc[df_lane['id'] == id1, 'capacity'].iloc[0]  # capacity
+                    x = df_lane.loc[df_lane['id'] == id1, 'fixed_transportation_cost'].iloc[0]     # fixed cost
+                    y = df_lane.loc[df_lane['id'] == id1, 'transportation_cost_per_unit'].iloc[0]  # variable cost
+                    z = df_lane.loc[df_lane['id'] == id1, 'lead_time'].iloc[0]                     # lead time cost
+
+                    capacity_lst.append(w)
+                    unit_cost_lst.append(x + y)
+                    lead_time_lst.append(z)
+
+        capacity_lst = [int(item) for item in capacity_lst]
+        main['capacity'] = capacity_lst
+        main['unit_costs'] = unit_cost_lst
+        main['lead_time'] = lead_time_lst
+        main = main.drop(['id'], axis=1)
+        print("main df")
+        print(main.info())
+
+        print(main.head(100))
+
 
         #Supplies
-        df_supply = pd.DataFrame(df_lanes.groupby(['location_from_id'])['#POs'].sum().reset_index(name='PO_supplies'))
+        df_supply = pd.DataFrame(main.groupby(['location_from_id'])['#POs'].sum().reset_index(name='PO_supplies'))
         #Demands
-        df_demand = pd.DataFrame(df_lanes.groupby(['location_to_id'])['#POs'].sum().reset_index(name='PO_demand'))
-
-        # Transport Lanes (& Material Flows)
-        z = pd.DataFrame(
-            main.groupby(['location_from_id', 'location_to_id']).size().reset_index(name='#Material_flows'))
+        df_demand = pd.DataFrame(main.groupby(['location_to_id'])['#POs'].sum().reset_index(name='PO_demand'))
 
         ## Encoding facilities
 
@@ -375,18 +543,21 @@ def update_output(date_value, contents, filename):
         print(d1)
         print(d2)
 
-        z = z.replace({"location_from_id": d1, "location_to_id": d2})
+        main = main.replace({"location_from_id": d1, "location_to_id": d2})
 
         # start-end nodes / unit cost / supply-demand
         start_nodes = []
         end_nodes = []
         unit_costs = []
         supplies = []
+        mat_lst = []
+        capacities = capacity_lst
+
         # start nodes
-        for s_node in z['location_from_id']:
+        for s_node in main['location_from_id']:
             start_nodes.append(s_node)
         # end nodes
-        for e_node in z['location_to_id']:
+        for e_node in main['location_to_id']:
             end_nodes.append(e_node)
         # supplies at supply nodes
         for s in df_supply['PO_supplies']:
@@ -395,21 +566,33 @@ def update_output(date_value, contents, filename):
         for s in df_demand['PO_demand']:
             supplies.append(-s)
         # unit costs
-        for c in df_lanes["unit_costs"]:
+        for c in main["unit_costs"]:
             unit_costs.append(c)
-        # capacities (assuming 1 FTL carries 5 POs)
-        capacities = [5] * len(unit_costs)
-        capacities
+
+
+        # material list
+        for mat in main['material_id']:
+            mat_lst.append(mat)
 
         print("start_nodes", start_nodes)
         print(len(start_nodes))
+
         print("end_nodes", end_nodes)
         print(len(end_nodes))
+
         print("capacities", capacities)
         print(len(capacities))
+
+        print("unit_costs", unit_costs)
+        print(len(capacities))
+
         print("supplies", supplies)
         print(len(supplies))
 
+        print('sum of supplies ', sum(supplies))
+
+        print("Materials", mat_lst)
+        print(len(mat_lst))
 
         #-----------------OR tools-------------------
         # Instantiate a SimpleMinCostFlow solver.
@@ -469,9 +652,7 @@ def update_output(date_value, contents, filename):
         print("Cost", cost_list)
 
         # Dataframe result
-        new_df = pd.DataFrame(
-            {'Source': source_list, 'Destination': dest_list, 'PO Flow': flow_list, 'Flow Capacity': capacity_list,
-             'Cost': cost_list})
+        new_df = pd.DataFrame({'material_id': mat_lst,'Source': source_list, 'Destination': dest_list, 'PO Flow': flow_list, 'Flow Capacity': capacity_list, 'Cost': cost_list, 'Lead time': lead_time_lst})
         #del source_list, dest_list, flow_list, capacity_list, cost_list
 
         # Load (assuming 1 truck/flight can carry 2 POs)
@@ -489,12 +670,11 @@ def update_output(date_value, contents, filename):
         print(d2_rev)
 
         new_df = new_df.replace({"Source": d1_rev, "Destination": d2_rev})
-
         print(new_df.head(100))
 
         table2 = html.Div(
             [
-                html.H5("Optimized PO flow", className="font-weight-bold text-danger"),
+                # html.H5("Optimized PO flow", className="font-weight-bold text-danger"),
                 dash_table.DataTable(
                     id='datatable_id_2',
                     data=new_df.to_dict("records"),
@@ -538,14 +718,15 @@ def update_output(date_value, contents, filename):
                     virtualization=False,
                     export_columns='all',  # 'all' or 'visible
                     export_format='xlsx',  # 'csv or 'none' or 'xlsx'
+
                     style_data_conditional=([
                         {
                             'if': {
                                 'filter_query': '{PO Flow} = {Flow Capacity}',
                                 'column_id': 'Source'
                             },
-                            'backgroundColor': 'black',
-                            'color': 'red',
+                            'backgroundColor': 'orange',
+                            'color': 'white',
                             'fontWeight': 'bold',
                         },
 
@@ -554,8 +735,8 @@ def update_output(date_value, contents, filename):
                                 'filter_query': '{PO Flow} = {Flow Capacity}',
                                 'column_id': 'Destination'
                             },
-                            'backgroundColor': 'black',
-                            'color': 'red',
+                            'backgroundColor': 'orange',
+                            'color': 'white',
                             'fontWeight': 'bold',
                         },
 
@@ -584,8 +765,8 @@ def update_output(date_value, contents, filename):
                                 'filter_query': '{Capacity Utilization %} = 100',
                                 'column_id': 'Capacity Utilization %'
                             },
-                            'backgroundColor': 'black',
-                            'color': 'red',
+                            'backgroundColor': 'orange',
+                            'color': 'white',
                             'fontWeight': 'bold',
                         },
 
@@ -625,8 +806,7 @@ def update_output(date_value, contents, filename):
 
         print(df_loc_day.info())
 
-# ------------------------------------------------------------------------------------------------------------
-
+#------------------------------------------------------------------------------------------------------------------------------
         fig = px.scatter_mapbox(df_loc_day, lat="latitude", lon="longitude",
                                 hover_name="location_id",
                                 hover_data=["city", "country"],
@@ -641,29 +821,32 @@ def update_output(date_value, contents, filename):
         fig.update_traces(showlegend=True),
         fig.update_layout(legend=dict(orientation="h", yanchor="top", y=1, xanchor="auto", x=0),
                           legend_title_text='')
-        fig.update_layout(mapbox_style="carto-darkmatter", mapbox_accesstoken=token)
+        if view == 'ostreet':
+            fig.update_layout(mapbox_style="carto-positron", mapbox_accesstoken=token)
+        if view == 'toner':
+            fig.update_layout(mapbox_style="stamen-toner", mapbox_accesstoken=token)
+        elif view == 'sat':
+            fig.update_layout(mapbox_style="satellite", mapbox_accesstoken=token)
+        elif view == 'region':
+            fig.update_layout(mapbox_style="stamen-terrain", mapbox_accesstoken=token)
+        elif view == 'dak':
+            fig.update_layout(mapbox_style="carto-darkmatter", mapbox_accesstoken=token)
+        elif view == 'street':
+            fig.update_layout(mapbox_style="streets", mapbox_accesstoken=token)
 
-        # if view == 'ostreet':
-        #     fig.update_layout(mapbox_style="open-street-map", mapbox_accesstoken=token)
-        # elif view == 'sat':
-        #     fig.update_layout(mapbox_style="satellite", mapbox_accesstoken=token)
-        # elif view == 'water':
-        #     fig.update_layout(mapbox_style="stamen-watercolor", mapbox_accesstoken=token)
-        # elif view == 'dak':
-        #     fig.update_layout(mapbox_style="carto-darkmatter", mapbox_accesstoken=token)
-        # elif view == 'street':
-        #     fig.update_layout(mapbox_style="streets", mapbox_accesstoken=token)
+        # fig.update_layout(mapbox_style="carto-darkmatter", mapbox_accesstoken=token)
 
         #------------------------------------------------------------------------------------------------------------
-        res5 = df_lanes['#POs'].sum(),
+        res5 = main['#POs'].sum(),
         res6 = model.MaximumFlow(),
         res7 = model.OptimalCost(),
 
-        print('Total POs in the selected day:', df_lanes['#POs'].sum())
+        print('Total POs in the selected day:', main['#POs'].sum())
         print('Maximum PO Flow:', model.MaximumFlow())
         print('Minimum cost: $', model.OptimalCost())
 
         #---------------------------------------------------------------------------------------------------------
+        # Sankey Diagram
         fig2 = go.Figure(data=[go.Sankey(
 
             node=dict(
@@ -679,7 +862,7 @@ def update_output(date_value, contents, filename):
                 value = flow_list
             ))])
 
-        fig2.update_layout(title_text="Purchase Order Flows ", font_size=20)
+        fig2.update_layout(title_text="Purchase Order Flows ", font_size=15)
         fig2.update_traces(node_color= 'orange', selector = dict(type='sankey'))
         # ---------------------------------------------------------------------------------------------------------
 
@@ -690,6 +873,11 @@ def update_output(date_value, contents, filename):
 # Create bar chart
 @app.callback(
     Output(component_id='bar-container2', component_property='children'),
+    Output(component_id='bar_fig', component_property='children'),
+    Output(component_id='table_fig', component_property='children'),
+
+
+
     [Input(component_id='datatable_id_2', component_property="derived_virtual_data"),
      Input(component_id='datatable_id_2', component_property='derived_virtual_selected_rows'),
      Input(component_id='datatable_id_2', component_property='derived_virtual_selected_row_ids'),
@@ -699,34 +887,60 @@ def update_output(date_value, contents, filename):
      Input(component_id='datatable_id_2', component_property='active_cell'),
      Input(component_id='datatable_id_2', component_property='selected_cells')]
 )
-def update_bar(all_rows_data, slctd_row_indices, slct_rows_names, slctd_rows,
+def update_viz(all_rows_data, slctd_row_indices, slct_rows_names, slctd_rows,
                order_of_rows_indices, order_of_rows_names, actv_cell, slctd_cell):
 
     df_bar = pd.DataFrame(all_rows_data)
-    print(df_bar.head(100))
 
-    # used to highlight selected countries on bar chart
+    df_table =  df_bar.filter(['material_id','Cost','Lead time', 'PO Flow', 'trucks/flights'])
+    print((df_table.head(100)))
+
     colors = ['#7FDBFF' if i in slctd_row_indices else '#0074D9'
               for i in range(len(df_bar))]
+    colorscale = [[0, '#4d004c'], [.5, '#f2e5ff'], [1, '#ffffff']]
 
-    if "Destination" in df_bar and "Cost" in df_bar:
+    if "Destination" in df_bar and "Cost" in df_bar and 'Lead time' in df_bar:
 
-        return [
-            dcc.Graph(id='bar-chart',
+        fig_bar = dcc.Graph(id='bar-chart',
                       figure=px.bar(
                           data_frame=df_bar,
                           x="Destination",
-                          y='Cost',
-                          color= "Source",
+                          y='PO Flow',
+                          color= "Cost",
                           text="PO Flow",
-                          #textposition='auto',
+                          title="Cost vs Demand Fulfilment",
+                          hover_data=['Source'],
                           labels={"Cost": "Transportation Cost"},
-                        ).update_layout(showlegend=True, xaxis={'categoryorder': 'total ascending'})
+                        )
+                        .update_layout(showlegend=True, xaxis={'categoryorder': 'total ascending'})
                         .update_layout(legend=dict(orientation="h", yanchor="top", y=1.1, xanchor="auto", x=0)) #,legend_title_text='DCs/Warehouses')
                         .update_traces(texttemplate='%{text:.2s}', textposition='inside')
                         #.update_layout(xaxis_tickangle=-45)
                         #.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
                         #.update_layout(barmode='group')
+                            )
 
-                )
-            ]
+        fig_facet_bar = dcc.Graph(id='bar-chart2',
+                      figure=px.bar(
+                          data_frame=df_bar,
+                          y="Capacity Utilization %",
+                          x='trucks/flights',
+                          #size='PO Flow',
+                          text='PO Flow',
+                          color= "Source",
+                          title="Shipment: Capacity Utilizations/ Lead time/ POs",
+                          hover_data=['Source', 'Destination', 'Lead time'],
+                          facet_col="Destination",
+                          #labels={"Cost": "Transportation Cost"},
+                          )
+                         .update_layout(legend=dict(orientation="h", yanchor="top", y=1.1, xanchor="auto", x=0)) #,legend_title_text='DCs/Warehouses')
+                         .update_traces(showlegend=False),
+
+                          )
+
+
+        fig_table = dcc.Graph(id='table-chart',
+                            figure=ff.create_table(df_table, colorscale=colorscale))
+
+        return fig_bar, fig_facet_bar, fig_table
+
