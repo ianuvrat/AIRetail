@@ -39,6 +39,7 @@ token = 'pk.eyJ1IjoiaWFudXZyYXQiLCJhIjoiY2tvNWQ1a2FkMHB6MTJ2cXdmeGt3MTdldyJ9.5vx
 
 alert99 = dbc.Alert("Data uploaded! Select a date and submit ", color="info",  dismissable=True),
 alert98 = dbc.Alert("Upload Purchase Orders data!", color="warning",  dismissable=True),
+alert97 = dbc.Alert("All constraints were met. Scroll down!", color="success",  dismissable=True),
 
 
 #---------------------------------------------------------------
@@ -131,7 +132,7 @@ html.Br(),
             html.Button(id='submit_id', n_clicks=0, children='Submit'),
         ], className="text-left", width={'size': 1, 'offset': 3, 'order': 1}),
 
-        # Alert,
+        # Alert 2,
         dbc.Col([
             html.Div(id="alert_id", children=[]),
         ], className="text-left", width={'size': 3, 'offset': 0, 'order': 0}),
@@ -139,22 +140,30 @@ html.Br(),
 
 
     dbc.Row([
+        dbc.Col([
+            # Alert3 ,
+            dbc.Col([
+                html.Div(id="alert_id3", children=[]),
+            ], className="text-left", width={'size': 3, 'offset': 9, 'order': 0}),
 
+        ])
+    ]),
+
+
+    dbc.Row([
         # 2 Selected Date Display
         dbc.Col([
             dcc.Loading(children=[html.Div(id="output-container-date-picker-single", className="text-danger font-weight-bold text-left border-primary")],color="#119DFF",
                         type="circle", fullscreen=False),
-
-#            html.Div(id='output-container-date-picker-single', className="text-danger font-weight-bold text-left border-primary")
                 ] , className="text-left", width={'size': 3, 'offset': 9, 'order': 1}),
             ]),
 
 
-    # 5  Uploaded Dash datatable
+        # 5  Uploaded Dash datatable
         dcc.Loading(children=[html.Div(id="output-data-upload", style={'width': '190vh', 'height': '100vh'})], color="#119DFF",
                     type="default", fullscreen=False),
 
-    html.Br(),
+html.Br(),
 html.Br(),
 html.Br(),
 html.Br(),
@@ -426,6 +435,9 @@ def parse_output(contents, filename):
     Output('output-data-upload2', 'children'),
     Output('mymap3', 'figure'),
     Output('sanky-fig', 'figure'),
+    Output('alert_id3', 'children'),
+
+
 
     [Input('map_mode', 'value'),
     Input('submit_id', 'n_clicks'),
@@ -875,7 +887,7 @@ def process_update(view, num_clicks, date_value, contents,filename):
         # ---------------------------------------------------------------------------------------------------------
 
 
-        return string_prefix + date_string, res1,res2,res3,res4,res5,res6,res7, table2, fig, fig2
+        return string_prefix + date_string, res1,res2,res3,res4,res5,res6,res7, table2, fig, fig2, alert97
 #---------------------------------------------------------------
 
 # Create bar chart
@@ -951,4 +963,3 @@ def update_viz(all_rows_data, slctd_row_indices, slct_rows_names, slctd_rows,
                             figure=ff.create_table(df_table, colorscale=colorscale))
 
         return fig_bar, fig_facet_bar, fig_table
-
